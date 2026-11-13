@@ -4,8 +4,17 @@ on:
   push:
   pull_request:
 
+concurrency:                       # a newer push to the same branch / PR cancels the older run
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  test:
+  # tests that need no test data: every OS, oldest and newest supported Python
+  offline:
     strategy:
       fail-fast: false
       matrix:
@@ -19,14 +28,102 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
       - run: python -m pip install -r requirements.txt
-      # the offline tests; the others skip without the (not shipped) test screenshots,
-      # and test_atlas_viewer needs a desktop and an atlas
       - name: tests
         working-directory: tests
-        shell: bash
         run: |
           set -e
-          for t in test_atlas_builder test_atlas_io test_model_safety test_atlas_folder test_random_sequence test_drop_placement test_false_merge test_detect_pairs; do
+          for t in test_atlas_builder test_atlas_io test_model_safety; do
             echo "===== $t"
             python "$t.py"
           done
+
+  # the test data (~500 MB in Git LFS) is downloaded once and cached; LFS bandwidth is limited,
+  # so the jobs below restore it from the cache instead of each downloading it
+  testdata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: list the test data files
+        run: git lfs ls-files -l -I "atlas_test_data/**" | cut -d' ' -f1 | sort > .lfs-testdata-id
+      - uses: actions/cache@v4
+        id: cache
+        with:
+          path: .git/lfs/objects
+          key: lfs-testdata-${{ hashFiles('.lfs-testdata-id') }}
+          enableCrossOsArchive: true
+      - name: download the test data
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: git lfs fetch --include="atlas_test_data/**" --exclude=""
+
+  # regression tests on the real screenshots: detection, placement, false merges, atlas folders
+  regression:
+    needs: testdata
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: list the test data files
+        run: git lfs ls-files -l -I "atlas_test_data/**" | cut -d' ' -f1 | sort > .lfs-testdata-id
+      - uses: actions/cache/restore@v4
+        with:
+          path: .git/lfs/objects
+          key: lfs-testdata-${{ hashFiles('.lfs-testdata-id') }}
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+      - name: put the test data in place
+        run: |
+          git lfs install --local
+          git lfs checkout atlas_test_data
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - name: tests
+        working-directory: tests
+        run: |
+          set -e
+          for t in test_atlas_folder test_random_sequence test_drop_placement test_false_merge test_detect_pairs; do
+            echo "===== $t"
+            python "$t.py"
+          done
+
+  # the real viewer window on a virtual screen: render, zoom, pan, select, search, bookmarks, adding
+  viewer:
+    needs: testdata
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: list the test data files
+        run: git lfs ls-files -l -I "atlas_test_data/**" | cut -d' ' -f1 | sort > .lfs-testdata-id
+      - uses: actions/cache/restore@v4
+        with:
+          path: .git/lfs/objects
+          key: lfs-testdata-${{ hashFiles('.lfs-testdata-id') }}
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+      - name: put the test data in place
+        run: |
+          git lfs install --local
+          git lfs checkout atlas_test_data
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - run: python -m pip install -r requirements.txt
+      - name: viewer test
+        working-directory: tests
+        run: xvfb-run -a -s "-screen 0 1920x1080x24" python test_atlas_viewer.py --out "$RUNNER_TEMP/grabs"
+      - name: keep the window grabs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: viewer-window-grabs
+          path: ${{ runner.temp }}/grabs
+          if-no-files-found: ignore
