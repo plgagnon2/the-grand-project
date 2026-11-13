@@ -1,0 +1,20 @@
+# Code coverage of the tests (GitHub Actions: tests.yml). Locally, from this folder:
+#   python -m pip install coverage
+#   python -m coverage run tests/test_atlas_builder.py      (any test; repeat for others)
+#   python -m coverage combine && python -m coverage html   (report in htmlcov/index.html)
+[run]
+source = program
+parallel = true
+# the viewer works in threads; detection and tracing run in worker processes
+concurrency = thread, multiprocessing
+# stored relative, so runs on Windows, macOS and Linux can be combined into one report
+relative_files = true
+
+[paths]
+source =
+    program/
+    program\
+
+[report]
+skip_empty = true
+precision = 1

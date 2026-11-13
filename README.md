@@ -137,6 +137,7 @@ Run these from the folder named:
 - `tools/`: `py atlas_marks.py` checks the detector against all hand-drawn mark layers and true paths.
 - `tests/`: double-click `Run all tests.bat`, or run any `test_*.py` on its own. `test_atlas_viewer.py` opens a window for about 20 s.
 - **GitHub Actions** runs all the tests on every push and pull request (`.github/workflows/tests.yml`): the offline ones on Windows, macOS and Linux with Python 3.11 and 3.13, the regression tests on the test data on all three systems, and `test_atlas_viewer.py` on Linux on a virtual screen (its window grabs are kept as a download on the run's page). The test data is downloaded once and cached, to spare the Git LFS bandwidth.
+- **Code coverage**: every CI run measures which lines the tests reach. The run's summary page shows the % per file, the full report (`coverage-report-html`) is a download there, and pull requests get a comment with the total and the coverage of the lines they change. Locally: see `.coveragerc`.
 
 ## License and credits
 
