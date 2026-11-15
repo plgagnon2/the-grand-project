@@ -1,4 +1,4 @@
-# The Grand Project — v1.12
+# The Grand Project — v1.13
 
 Builds one big map of your Path of Exile 2 atlas from your screenshots. Named after the in-game tablet, *The Grand Project*. It finds maps, paths, icons, towers and cities, and lets you search and bookmark them.
 
@@ -101,6 +101,23 @@ A screenshot that overlaps nothing yet goes to **Waiting** (Auto-add tab). Waiti
   - *Re-check whole atlas* runs the full clean-up pass again (a few minutes on a big atlas).
   - *Fix seams (clean map)* rebuilds the map image with care: each map node comes whole from one screenshot with its icons, seams stay off paths and away from screenshot edges, and lit copies win over fogged ones. It takes several minutes on a big atlas and runs in the background.
   - *Export map PNGs*.
+  - *Open web map (browser)*: see below.
+
+### Web map (browser)
+
+**File → Open web map (browser)** opens the atlas in your web browser as a smooth, zoomable map (MapLibre):
+
+- **Zoom and pan** with the wheel, a drag or a pinch, the **+ / −** buttons, or **⤢** to fit the whole atlas.
+- **Search** (press `/`) by icon name, City / Hall / Tower, bookmark or `#map`; click a result to fly there.
+- **Highlight** rings every map with one icon type.
+- **Directions:** *Set my position* and click your map (it is remembered), then click any map → *Route here*, or
+  pick an icon under *Nearest* to go to the closest map with it. The route is drawn on the map with the list of maps
+  to run (fewest maps first).
+- **Layers:** show or hide terrain, paths, maps, landmarks, bookmarks and the route.
+
+The first time it writes the map as tiles into the atlas's `atlas_files/web/` folder (seconds; again only when the
+atlas changed) and serves them from your computer only (`127.0.0.1`), until the viewer is closed. The page loads
+MapLibre from the internet (unpkg.com). Without the viewer: `python -m grand_project.webmap path/to/atlas.json`.
 
 ## 5. Other things
 
@@ -143,6 +160,7 @@ Run these from this folder:
 - `python -m grand_project.detect train` also retrains the City check (a city's map node always stands on a brass barrel) from screenshots plus a `cities_truth.json` listing each city's map node (`CITY_TRUTH_SETS`); it prints a fair score first and saves `references/city_barrel.npz`. `python -m grand_project.detect train_cities [FOLDER ...]` retrains only that.
 - `python -m tools.import_poe2db_art` adds poe2db's Map Content art (`references/poe2db_icons/`) as icon pictures for types with no on-screen example yet, so rare icons can still be named.
 - `python -m tools.make_hud_mask SCREENSHOT` rebuilds `references/hud_mask_full.png` from a 1920×1080 atlas screenshot taken over black unexplored fog (everything not black is interface).
+- `python -m grand_project.webmap ATLAS.json [--no-serve] [--force]` exports the web map (and serves it).
 - Tests: `make test`, `tests/Run all tests.bat`, `tests/run_all_tests.sh`, or one at a time with `python -m tests.test_atlas_builder`. `test_atlas_viewer` opens a window for about 20 s.
 - Lint: `make lint` (ruff check + format); CI runs the same on every push and pull request.
 
@@ -157,6 +175,7 @@ Run these from this folder:
 | `builder.py` | detecting and adding screenshots (also a command line) |
 | `cities.py`, `towers.py` | city types and biomes; hand-made tower / stronghold rules |
 | `viewer/` | the window: `app.py` builds it, each other file is one part of it (panels, auto-add, drawing, ...) |
+| `webmap/` | the web map: raster tiles of the map image and vector tiles (MVT) of maps and paths (`tiles.py`, `mvt.py`), the local server, the page (`static/`: MapLibre, search, directions) |
 
 Each larger part keeps its tunable numbers in its own `constants.py`.
 

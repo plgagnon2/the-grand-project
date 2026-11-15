@@ -26,6 +26,7 @@ RUFF ?= $(if $(filter windows,$(PLATFORM)),$(VENV_BIN)/ruff.exe,$(VENV_BIN)/ruff
 TESTS := \
 	tests.test_atlas_builder \
 	tests.test_atlas_io \
+	tests.test_webmap \
 	tests.test_model_safety \
 	tests.test_atlas_folder \
 	tests.test_random_sequence \

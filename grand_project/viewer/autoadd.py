@@ -307,6 +307,7 @@ class AutoAddMixin:
         """
         self._closing = True
         self.stop_seams()
+        self.stop_web_map()
         if save and self.atlas and self.path:
             with self._lock:  # the worker is idle; a PNG export may hold it for a moment
                 self.atlas.save(self.path)

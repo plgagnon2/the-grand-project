@@ -27,7 +27,8 @@ NumPy, SciPy, scikit-learn. It must run on Windows, macOS and Linux.
 `grand_project/` is the package (see the README's *Code layout* table): `core/` (screenshots, placement, the atlas
 file, terrain, waiting groups `islands.py`, clean map `seams.py`), `detect/` (the per-screenshot detector),
 `finalize/` (the atlas-wide check), `viewer/` (the window, one mixin per file), plus `builder.py`, `cities.py`,
-`towers.py`, `paths.py` (every folder location). `tools/` are developer helpers, `tests/` regression tests,
+`towers.py`, `paths.py` (every folder location), `webmap/` (the atlas as a MapLibre web map: tiles, a local
+server, the page in `webmap/static/`). `tools/` are developer helpers, `tests/` regression tests,
 `references/` every data file the program reads.
 
 ## Conventions
@@ -54,7 +55,7 @@ file, terrain, waiting groups `islands.py`, clean map `seams.py`), `detect/` (th
 
 ## Tests
 
-Offline tests (CI runs these): `test_atlas_builder test_atlas_io test_model_safety test_atlas_folder
+Offline tests (CI runs these): `test_atlas_builder test_atlas_io test_webmap test_model_safety test_atlas_folder
 test_random_sequence test_drop_placement test_false_merge test_detect_pairs`. `test_atlas_viewer` opens a window
 (about a minute) and `test_waiting_islands` takes ~10 minutes. Tests needing the trimmed test data skip without it
 (Git LFS, see README). Detector changes: compare `python -m grand_project.detect score` before and after. When

@@ -38,6 +38,7 @@ from .selection import SelectionMixin
 from .settings import load_settings
 from .terrain import TerrainMixin
 from .view_tab import ViewTabMixin
+from .webmap import WebMapMixin
 
 if sys.stdout is None:  # started with pythonw: the detector prints a lot
     sys.stdout = open(os.devnull, "w")  # noqa: SIM115 - stream remains open for process lifetime
@@ -67,11 +68,12 @@ class Viewer(
     DrawingMixin,
     AtlasesTabMixin,
     FrameLogMixin,
+    WebMapMixin,
 ):
     """The atlas viewer window: the map canvas, the side panel tabs and the background worker.
 
     The work is split over one mixin per file (panels, terrain, files, view tab, folders, cities, auto-add,
-    navigation, debug, selection, bookmarks, drawing, saved atlases, frame log); this class holds the shared
+    navigation, debug, selection, bookmarks, drawing, saved atlases, frame log, web map); this class holds the shared
     state and builds the window. Everything runs on the window (Tk) thread except the worker and the helper
     threads, which reach the window only through the queue `self._q`.
     """
@@ -198,6 +200,7 @@ class Viewer(
         fm.add_command(label="Re-check whole atlas", command=self.refinalize)
         fm.add_command(label="Fix seams (clean map)", command=self.fix_seams)
         fm.add_command(label="Export map PNGs", command=self.export_pngs)
+        fm.add_command(label="Open web map (browser)", command=self.open_web_map)
         fm.add_separator()
         fm.add_command(label="Exit", command=self.on_close)
         self.file_btn["menu"] = fm

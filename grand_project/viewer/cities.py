@@ -726,13 +726,7 @@ class CitiesMixin:
         Returns:
             The hex digest.
         """
-        import hashlib
-
-        h = hashlib.sha1()
-        for f in self.atlas.frames:
-            h.update(f["name"].encode())
-            h.update(np.round(np.array(f["M"], float), 2).tobytes())
-        return h.hexdigest()
+        return self.atlas.terrain_key()
 
     def _terrain_files(self):
         """Returns the map image cache files of the open atlas.
@@ -740,8 +734,7 @@ class CitiesMixin:
         Returns:
             (<stem>_terrain.png, <stem>_terrain.npz) in the atlas's files folder.
         """
-        d = core.atlas_files(self.path)
-        return d / (self.path.stem + "_terrain.png"), d / (self.path.stem + "_terrain.npz")
+        return core.map_image_files(self.path)
 
     def rebuild_terrain(self, background=True, cities=True):
         """Shows the stitched map: from the cache next to the atlas when it matches, else built in the

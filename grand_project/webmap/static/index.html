@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas web map</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+</head>
+<body>
+<aside id="panel">
+  <header>
+    <h1 id="title">Atlas</h1>
+    <div id="stats" class="muted"></div>
+  </header>
+
+  <section>
+    <input id="search" type="search" placeholder="Search icons, landmarks, bookmarks, #map…  ( / )" autocomplete="off">
+    <ul id="results"></ul>
+  </section>
+
+  <section>
+    <h2>Highlight</h2>
+    <select id="highlight"><option value="">No highlight</option></select>
+    <div id="highlight-count" class="muted"></div>
+  </section>
+
+  <section>
+    <h2>Directions</h2>
+    <div class="row">
+      <button id="set-player" title="Then click your map on the atlas">Set my position</button>
+      <button id="clear-route">Clear route</button>
+    </div>
+    <div id="player" class="muted">Position not set.</div>
+    <label class="row">Nearest
+      <select id="nearest"><option value="">— icon —</option></select>
+    </label>
+    <div id="route-info"></div>
+    <ol id="route-steps"></ol>
+  </section>
+
+  <section>
+    <h2>Layers</h2>
+    <div id="layers"></div>
+  </section>
+
+  <footer class="muted">Click a map for details. Scroll / pinch to zoom, drag to pan.</footer>
+</aside>
+<div id="map"></div>
+<div id="pick-hint" hidden>Click your map on the atlas (Esc to cancel)</div>
+<script src="app.js"></script>
+</body>
+</html>

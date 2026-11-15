@@ -55,6 +55,7 @@ from .frame import (  # noqa: F401
     is_full_window,
     is_generated,
     is_screenshot,
+    map_image_files,
     on_hud_mask,
     png_bytes,
     read_screenshot,

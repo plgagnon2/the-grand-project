@@ -1,6 +1,6 @@
 [project]
 name = "the-grand-project"
-version = "1.12"
+version = "1.13"
 description = "Builds one big map of your Path of Exile 2 atlas from screenshots: maps, paths, badges, towers and cities."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -37,6 +37,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["grand_project*"]
+
+[tool.setuptools.package-data]
+"grand_project.webmap" = ["static/*"]  # the web map page (HTML, JS, CSS)
 
 [dependency-groups]
 dev = [
